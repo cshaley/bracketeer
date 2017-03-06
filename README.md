@@ -7,4 +7,4 @@ from bracket_builder import make_bracket
 make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath)
 
 Output is a bracket filled in with team seeds, names, and winning likelihood for each game.  
-![alt tag](https://raw.githubusercontent.com/cshaley/predicted_bracket_generator/blob/master/empty_bracket.jpg)
+![alt tag](https://raw.githubusercontent.com/cshaley/predicted_bracket_generator/master/empty_bracket.jpg)
