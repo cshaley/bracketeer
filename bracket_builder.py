@@ -216,7 +216,7 @@ if __name__ == "__main__":
     DATAPATH = "data/"
     submissionPath = 'submit.csv'
     emptyBracketPath = 'empty_bracket.jpg'
-    outputFilePath = 'PredictedBracket.jpg'
+    outputFilePath = 'predicted_bracket.jpg'
 
     # Run program
     make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath)
