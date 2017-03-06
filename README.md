@@ -8,6 +8,12 @@ from bracket_builder import make_bracket
 make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath)
 ```
 
+## Dependencies
+* matplotlib
+* numpy
+* pandas
+* PIL
+
 Additional input data/files not provided on kaggle:
 * matchups.csv - matchup and bracket slot mapping for each seed in 2016
 * empty_bracket.jpg - empty ncaa bracket
