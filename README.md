@@ -14,3 +14,6 @@ Additional input data/files not provided on kaggle:
 Output is a bracket filled in with team seeds, names, and winning likelihood for each game.  
 The empty bracket is shown below.
 ![alt tag](https://raw.githubusercontent.com/cshaley/predicted_bracket_generator/master/empty_bracket.jpg)
+
+The predicted bracket (this program's output) is shown below:
+![alt tag](https://raw.githubusercontent.com/cshaley/predicted_bracket_generator/master/sample/predicted_bracket.jpg)
