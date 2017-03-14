@@ -30,7 +30,7 @@ slotlist = ['Slot68', 'Slot64', 'Slot32', 'Slot16', 'Slot8', 'Slot4', 'Slot2']
 # Parameters for loading data
 DATA_LIST = ["Teams",
              "TourneySeeds",
-             "matchups",
+             "matchups2017",
              ]
 
 
@@ -39,6 +39,8 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
     for st in DATA_LIST:
         execstr = st + " = pd.read_csv(DATAPATH + " + "'" + st + ".csv', sep=',')"
         exec execstr in globals(), locals()
+
+    matchups = matchups2017
 
     # Default data transformations
     matchups[TEAM] = matchups[TEAM].astype(str)
@@ -93,7 +95,7 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
         windf.loc[windf[PRED] < 0.5, LOSER] = windf.loc[windf[PRED] < 0.5, TEAM+'_'+LOWTEAM]
         windf.loc[windf[PRED] >= 0.5, LOSER] = windf.loc[windf[PRED] >= 0.5, TEAM+'_'+HIGHTEAM]
         windf['round'] = level
-        return windf
+        
         if dropna:
             matchupsdf = matchupsdf.dropna()
         out = matchupsdf.merge(windf, left_on=TEAM, right_on=TEAM+'_'+LOWTEAM)
