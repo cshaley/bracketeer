@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
+import IPython
 
 # Custom for this program
 from matchup_locs import matchup_locs
@@ -48,7 +49,7 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
 
     submit = pd.read_csv(submissionPath)
 
-    def make_matchup_df(df, level, slot, dropna=False):
+    def make_matchup_df(df, level, slot, previous_losers, dropna=False):
         """Organize data by self joining on matchups so we can generate matchup ids
         
         Params:
@@ -72,6 +73,8 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
         df2 = out.loc[out['firstLower?'] == False, :]
         df2 = df2.rename(columns={a: a.replace('x', HIGHTEAM).replace('y', LOWTEAM) for a in df2.columns})
         dfout = pd.concat([df1, df2])
+        dfout = dfout[  ~(dfout[HIGHTEAM].isin(previous_losers))
+                      & ~(dfout[LOWTEAM].isin(previous_losers))]
         return dfout
 
     def get_winners(df, level, matchupsdf, dropna=False):
@@ -98,32 +101,26 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
         if dropna:
             matchupsdf = matchupsdf.dropna()
         out = matchupsdf.merge(windf, left_on=TEAM, right_on=TEAM+'_'+LOWTEAM)
+
         return out[list(set(windf.columns.values)-set([level]))]
 
     # create dataframes laying out data for each possible matchup in each round
-    rounds = {'Roundof68': make_matchup_df(matchups, 'Roundof68', 'Slot68', dropna=True)}
+    rounds = {'Roundof68': make_matchup_df(matchups, 'Roundof68', 'Slot68', pd.DataFrame(), dropna=True)}
+    losers = get_winners(rounds['Roundof68'], 'Roundof68', matchups)[LOSER]
     for r, s in zip(roundlist[1:], slotlist[1:]):
-        rounds[r] = make_matchup_df(matchups, r, s)
+        rounds[r] = make_matchup_df(matchups, r, s, losers)
+        losers = pd.concat((losers, get_winners(rounds[r], r, matchups)[LOSER])).reset_index(drop=True)
 
+
+    # TODO: this should be reducible...just need to keep the winner/loser columns
     # determine winners of each possible matchup in each round
-    mlist = [get_winners(rounds['Roundof68'], 'Roundof68', matchups, dropna=True)]
-    for r in roundlist[1:]:
+    #mlist = [get_winners(rounds['Roundof68'], 'Roundof68', matchups, dropna=True)]
+    mlist = []
+    for r in roundlist:
         mlist.append(get_winners(rounds[r], r, matchups))
 
-    # filter out teams that lost in each of the prior rounds
-    ms = [mlist[0]]
-    for ix, m in enumerate(mlist[1:]):
-        for mo in mlist[0: ix + 1]:
-            m = (
-                m[(~m[TEAM + '_' + LOWTEAM].isin(mo[LOSER]))
-                  & (~m[WINNER].isin(mo[LOSER]))
-                  & (~m[LOSER].isin(mo[LOSER]))]
-                .reset_index(drop=True)
-             )
-        ms.append(m)
-
     # Create backet summary dataframe
-    bracket = pd.concat(ms).reset_index(drop=True)
+    bracket = pd.concat(mlist).reset_index(drop=True)
     bracket['matchup'] = ''
     for r in roundlist:
         r = r + '_' + LOWTEAM
