@@ -46,7 +46,10 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
     Teams_str['Team_Id'] = Teams_str['Team_Id'].astype(str)
 
     submit = pd.read_csv(submissionPath)
-
+    submit = submit.rename(columns={a:a.lower() for a in submit.columns.values})
+    assert PRED in submit.columns.values
+    assert ID in submit.columns.values
+    
     def make_matchup_df(df, level, slot, previous_losers, dropna=False):
         """Organize data by self joining on matchups so we can generate matchup ids
         
