@@ -4,7 +4,7 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
 # Custom for this program
-from matchup_locs import matchup_locs
+from matchup_locs.ml2017 import matchup_locs
 
 
 # CONSTANTS
@@ -36,7 +36,7 @@ def make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath):
     # Default data loads
     for st in DATA_LIST:
         execstr = st + " = pd.read_csv(DATAPATH + " + "'" + st + ".csv', sep=',')"
-        exec execstr in globals(), locals()
+        exec(execstr, globals())
 
     matchups = matchups2017
 
@@ -213,8 +213,8 @@ if __name__ == "__main__":
 
     # PARAMETERS
     DATAPATH = "data/"
-    submissionPath = 'submit.csv'
-    emptyBracketPath = 'empty_bracket.jpg'
+    submissionPath = DATAPATH + 'submit.csv'
+    emptyBracketPath = 'empty_brackets/2017.jpg'
     outputFilePath = 'predicted_bracket.jpg'
 
     # Run program

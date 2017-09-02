@@ -1,0 +1,6 @@
+# Data
+data
+
+# misc
+*.pyc
+*.DS_Store
