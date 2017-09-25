@@ -4,8 +4,10 @@ https://www.kaggle.com/c/march-machine-learning-mania-2017
 
 ## Usage:
 ```
-from bracket_builder import make_bracket
-make_bracket(DATAPATH, submissionPath, emptyBracketPath, outputFilePath)
+from bracket_builder import bracketeer
+# directory structure should be /.../datapath/year/files.csv
+b = bracketeer([2017], datapath)
+b.make_bracket(year, submissionPath, outputFilePath)
 ```
 
 ## Dependencies
