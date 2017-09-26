@@ -1,4 +1,4 @@
-# predicted_bracket_generator
+# bracketeer
 Generate predicted bracket from a kaggle march madness machine learning competition submission.
 https://www.kaggle.com/c/march-machine-learning-mania-2017
 
@@ -23,7 +23,7 @@ Additional input data/files not provided on kaggle:
 
 Output is a bracket filled in with team seeds, names, and winning likelihood for each game.  
 The empty bracket is shown below.
-![alt tag](https://raw.githubusercontent.com/cshaley/predicted_bracket_generator/master/empty_bracket.jpg)
+![alt tag](https://raw.githubusercontent.com/cshaley/bracketeer/master/empty_bracket.jpg)
 
 The predicted bracket (this program's output) is shown below:
-![alt tag](https://raw.githubusercontent.com/cshaley/predicted_bracket_generator/master/sample/predicted_bracket.jpg)
+![alt tag](https://raw.githubusercontent.com/cshaley/bracketeer/master/sample/predicted_bracket.jpg)
