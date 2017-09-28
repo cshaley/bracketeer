@@ -24,55 +24,64 @@ WTEAM = 'Wteam'
 roundlist = ['Roundof68', 'Roundof64', 'Roundof32', 'Sweet16', 'Elite8', 'Final4', 'Championship2']
 slotlist = ['Slot68', 'Slot64', 'Slot32', 'Slot16', 'Slot8', 'Slot4', 'Slot2']
 
-# Parameters for loading data
-DATA_LIST = ["Teams",
-             "TourneySeeds",
-             ]
-
 
 class bracketeer(object):
 
-    def __init__(self, years, datapath):
-        # Directory structure should be of format /datapath/year/eachfile.csv
-        if isinstance(years, int):
-            self.years = [years]
-        elif isinstance(years, list):
-            self.years = years
-        else:
-            raise TypeError("years should be of type list of list of ints.")
-        for year in self.years:
+    def __init__(self, year, datapath, **kwargs):
+        # Directory structure should be of format /datapath/eachfile.csv
+        # You can alternatively pass in a dummy directory and manually
+        # specify locations for each needed file via kwargs
+        if isinstance(year, int):
             if year not in SUPPORTED_YEARS:
                 raise ValueError("Only the following years are supported: %s.  Your requested %s"
                                  % (SUPPORTED_YEARS, year))
+            self.year = year
+        else:
+            raise TypeError("years should be of type int.")
 
         if os.path.isdir(datapath):
             self.datapath = datapath
         else:
             raise IOError("Folder does not exist: " + str(datapath))
 
-    def make_bracket(self, year, submissionPath, outputFilePath):
+        self.emptyBracketPath = "empty_brackets/%s.jpg" % str(year)
+        self.teams_path = os.path.join(datapath, "Teams.csv")
 
-        # Set year-dependent variables
-        datapath = os.path.join(self.datapath, str(year) + "/")
-        emptyBracketPath = "empty_brackets/%s.jpg" % str(year)
-        exec("from matchup_locs.ml" + str(year) + " import matchup_locs", globals())
-        data_list = list(zip(DATA_LIST, DATA_LIST)) + [("matchups", "matchups" + str(year)), ]
+        # Instead of linking to this, I need to generate it from the kaggle data.
+        self.matchups_path = os.path.join(datapath, "matchups%s.csv" % str(year))
+
+        if 'teams_path' in kwargs:
+            self.teams_path = kwargs['teams_path']
+        if 'matchups_path' in kwargs:
+            self.matchups_path = kwargs['matchups_path']
+
+        data_list = [self.teams_path, self.matchups_path]
 
         # Default data loads
-        for var, st in data_list:
-            execstr = var + " = pd.read_csv('" + datapath + st + ".csv', sep=',')"
-            exec(execstr, globals())
+        for st in data_list:
+            if not os.path.isfile(st):
+                raise IOError("Expected file, %s, not found." % st)
+
+        self.Teams = pd.read_csv(self.teams_path, sep=',')
+        self.Matchups = pd.read_csv(self.matchups_path, sep=',')
+
+    def make_bracket(self, submissionPath, outputFilePath):
+        # Copy input data for manipulation/transformation
+        matchups = self.Matchups.copy()
+        Teams_str = self.Teams.copy()
 
         # Default data transformations
         matchups[TEAM] = matchups[TEAM].astype(str)
-        Teams_str = Teams
         Teams_str['Team_Id'] = Teams_str['Team_Id'].astype(str)
 
+        # Load submission file
         submit = pd.read_csv(submissionPath)
         submit = submit.rename(columns={a: a.lower() for a in submit.columns.values})
         assert PRED in submit.columns.values
         assert ID in submit.columns.values
 
+        # Below is the ugly algorithm for determining matchups and winners in each round.
+        # It can surely be improved upon or at least cleaned up a lot.
         def make_matchup_df(df, level, slot, previous_losers, dropna=False):
             """Organize data by self joining on matchups so we can generate matchup ids
 
@@ -246,6 +255,7 @@ class bracketeer(object):
                 slotsdict[int(row[1])] = row[2] + ' ' + row[0]
 
         # Create input data for the image
+        exec("from matchup_locs.ml" + str(self.year) + " import matchup_locs", globals())
         slotdata = {}
         for k in matchup_locs.keys():
             if k in slotsdict:
@@ -260,7 +270,7 @@ class bracketeer(object):
         # Create bracket image
         # relevant:
         # https://stackoverflow.com/questions/26649716/how-to-show-pil-image-in-ipython-notebook
-        img = Image.open(emptyBracketPath)
+        img = Image.open(self.emptyBracketPath)
         draw = ImageDraw.Draw(img)
         # font = ImageFont.truetype(<font-file>, <font-size>)
         # draw.text((x, y),"Sample Text",(r,g,b))
@@ -287,11 +297,11 @@ class bracketeer(object):
 if __name__ == "__main__":
 
     # PARAMETERS
-    datapath = "data/"
-    submissionPath = datapath + 'submit.csv'
+    datapath = "data/2017/"
+    submissionPath = 'data/submit.csv'
     outputFilePath = 'predicted_bracket.jpg'
 
     b = bracketeer(2017, datapath)
 
     # Run program
-    b.make_bracket(2017, submissionPath, outputFilePath)
+    b.make_bracket(submissionPath, outputFilePath)
