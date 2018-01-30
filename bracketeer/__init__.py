@@ -148,4 +148,4 @@ def build_bracket(output_path='output.png',
     img.save(output_path)
 
 if __name__ == '__main__':
-    bracketeer()
+    build_bracket()

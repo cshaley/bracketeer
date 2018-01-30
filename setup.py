@@ -7,9 +7,9 @@ setup(
     author='Charlie Haley',
     author_email='charlie.haley@gmail.com',
     url='https://github.com/joowani/binarytree',
+    download_url='https://github.com/cshaley/bracketeer/archive/0.5.0.tar.gz',
     packages=find_packages(),
     include_package_data=True,
-    #tests_require=['pytest', 'flake8'],
     license='MIT',
     classifiers=[
         'Intended Audience :: Developers',
