@@ -6,7 +6,7 @@ setup(
     version='0.5.0',
     author='Charlie Haley',
     author_email='charlie.haley@gmail.com',
-    url='https://github.com/joowani/binarytree',
+    url='https://github.com/cshaley/bracketeer',
     download_url='https://github.com/cshaley/bracketeer/archive/0.5.0.tar.gz',
     packages=find_packages(),
     install_requires=["pandas", "binarytree", "matplotlib", "Pillow"],
