@@ -4,17 +4,20 @@ https://www.kaggle.com/c/march-machine-learning-mania-2017
 
 ## Installation
 To install, do one of the following two things:
-1. ```pip install bracketeer```
-2. 
-```git clone https://github.com/cshaley/bracketeer.git
-cd bracketeer
-python setup.py install```
 
+`pip install bracketeer`
+
+OR
+
+```
+git clone https://github.com/cshaley/bracketeer.git
+cd bracketeer
+python setup.py install
+```
 
 ## Usage:
 ```
 from bracketeer import build_bracket
-# directory structure should be /.../datapath/files.csv
 b = build_bracket(
         output_path='output.png', 
         teamsPath='data/Teams.csv',
