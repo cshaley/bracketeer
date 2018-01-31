@@ -2,24 +2,38 @@
 Generate predicted bracket from a kaggle march madness machine learning competition submission.
 https://www.kaggle.com/c/march-machine-learning-mania-2017
 
+## Installation
+To install, do one of the following two things:
+1. ```pip install bracketeer```
+2. 
+```git clone https://github.com/cshaley/bracketeer.git
+cd bracketeer
+python setup.py install```
+
+
 ## Usage:
 ```
-from bracket_builder import bracketeer
+from bracketeer import build_bracket
 # directory structure should be /.../datapath/files.csv
-b = bracketeer(2017, datapath)
-b.make_bracket(submissionPath, outputFilePath)
+b = build_bracket(
+        output_path='output.png', 
+        teamsPath='data/Teams.csv',
+        seedsPath='data/TourneySeeds.csv',
+        submissionPath='data/submit.csv'
+)
 ```
 
 ## Dependencies
+* binarytree
 * matplotlib
 * numpy
 * pandas
 * PIL
 
 Additional input data/files not provided on kaggle:
-* matchups.csv - matchup and bracket slot mapping for each seed in 2016
 * empty_bracket.jpg - empty ncaa bracket
-* matchup_locs.py - mapping dictionary from slots to image coordinates on empty_bracket.jpg
+* slot_coordinates.py - mapping dictionary from slots to image coordinates on empty_bracket.jpg
+* ordered_seed_list.py - order of seeds on the bracket
 
 Output is a bracket filled in with team seeds, names, and winning likelihood for each game.  
 The empty bracket is shown below.
