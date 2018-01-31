@@ -9,6 +9,7 @@ setup(
     url='https://github.com/joowani/binarytree',
     download_url='https://github.com/cshaley/bracketeer/archive/0.5.0.tar.gz',
     packages=find_packages(),
+    install_requires=["pandas", "binarytree", "matplotlib", "Pillow"],
     include_package_data=True,
     license='MIT',
     classifiers=[
