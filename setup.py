@@ -3,11 +3,11 @@ from setuptools import setup, find_packages
 setup(
     name='bracketeer',
     description='Python Library for testing march madness brackets',
-    version='0.5.0',
+    version='0.1.0',
     author='Charlie Haley',
     author_email='charlie.haley@gmail.com',
     url='https://github.com/cshaley/bracketeer',
-    download_url='https://github.com/cshaley/bracketeer/archive/0.5.0.tar.gz',
+    download_url='https://github.com/cshaley/bracketeer/archive/0.1.0.tar.gz',
     packages=find_packages(),
     install_requires=["pandas", "binarytree", "matplotlib", "Pillow"],
     include_package_data=True,
