@@ -1,4 +1,9 @@
 # bracketeer
+[![PyPI](https://img.shields.io/pypi/v/bracketeer.svg)]()
+[![Python](https://img.shields.io/pypi/pyversions/bracketeer.svg)]()
+[![license](https://img.shields.io/github/license/cshaley/bracketeer.svg)]()
+
+
 Generate predicted bracket from a kaggle march madness machine learning competition submission.
 https://www.kaggle.com/c/march-machine-learning-mania-2017
 

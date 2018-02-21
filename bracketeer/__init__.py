@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
 
-from .ordered_seed_list import seed_slot_map, num_slots
 from .slot_coordinates import slot_coordinates
 
 ID = 'id'
@@ -51,10 +50,13 @@ def build_tree(values):
 def build_bracket(output_path='output.png', 
     teamsPath='data/Teams.csv',
     seedsPath='data/TourneySeeds.csv',
-    submissionPath='data/submit.csv'):
+    slotsPath='data/TourneySlots.csv',
+    submissionPath='data/submit.csv',
+    year=2017):
 
     assert os.path.isfile(teamsPath), '{} is not a valid file path for teamsPath.'.format(teamsPath)
     assert os.path.isfile(seedsPath), '{} is not a valid file path for seedsPath.'.format(seedsPath)
+    assert os.path.isfile(slotsPath), '{} is not a valid file path for slotsPath.'.format(slotsPath)
     assert os.path.isfile(submissionPath), '{} is not a valid file path for submissionPath.'.format(submissionPath)
 
     def cols_to_lower(df):
@@ -62,31 +64,41 @@ def build_bracket(output_path='output.png',
 
     teams_df = cols_to_lower(pd.read_csv(teamsPath))
     seeds_df = cols_to_lower(pd.read_csv(seedsPath))
+    slots_df = cols_to_lower(pd.read_csv(slotsPath))
     submit = cols_to_lower(pd.read_csv(submissionPath))
 
     df = seeds_df.merge(teams_df, left_on='team', right_on='team_id')
     keepcols = [SEASON, 'seed', 'team_id', TEAM]
-    df = df.loc[df[SEASON] == 2017, keepcols].reset_index(drop=True)
+    df = df.loc[df[SEASON] == year, keepcols].reset_index(drop=True)
 
-    # Build the bracket
-    # Leave off the last 8 (play-in seeds) when building the bracket
-    # as they have custom locations
-    bkt = build_tree(list(reversed(seed_slot_map.keys()))[:-8])
+    # Create bracket tree from slot data
+    s = slots_df[slots_df['season'] == year]
+    seed_slot_map = {0:'R6CH'}
+    bkt = extNode(0)
 
-    # In seed_slot_map, each of these seeds has the following location:
-    # W11   18
-    # W16   10
-    # Y16   42
-    # Z11   66
-    # So we set their children in the binary tree to the play-in seeds
-    bkt[num_slots - 18].left = extNode(1)
-    bkt[num_slots - 18].right = extNode(2)
-    bkt[num_slots - 10].left = extNode(3)
-    bkt[num_slots - 10].right = extNode(4)
-    bkt[num_slots - 42].left = extNode(5)
-    bkt[num_slots - 42].right = extNode(6)
-    bkt[num_slots - 66].left = extNode(7)
-    bkt[num_slots - 66].right = extNode(8)
+    counter = 1
+    current_nodes = [bkt]
+    current_id = -1
+    current_index = 0
+
+    while current_nodes:
+        next_nodes = []
+        current_index = 0
+        while current_index < len(current_nodes):
+            node = current_nodes[current_index]
+            if len(s[s['slot'] == seed_slot_map[node.value]].index) > 0:
+                node.left = extNode(counter)
+                node.right = extNode(counter + 1)
+                seed_slot_map[counter] = s[s['slot'] == seed_slot_map[node.value]].values[0][2]
+                seed_slot_map[counter + 1] = s[s['slot'] == seed_slot_map[node.value]].values[0][3]
+                next_nodes.append(node.left)
+                next_nodes.append(node.right)
+                counter += 2
+            current_index += 1
+            current_id += 1
+        current_nodes = next_nodes
+
+    num_slots = len(seed_slot_map.keys())
 
     def get_team_id(seedMap):
         return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['team_id'].values[0])
@@ -100,7 +112,7 @@ def build_bracket(output_path='output.png',
                 temp = team1
                 team1 = team2
                 team2 = temp
-            gid = '2017_{t1}_{t2}'.format(t1=team1[1], t2=team2[1])
+            gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1[1], t2=team2[1])
             if submit[submit[ID] == gid][PRED].values[0] >= 0.5:
                 level[ix * 2].parent.value = team1[0]
             else: 
@@ -110,7 +122,7 @@ def build_bracket(output_path='output.png',
     # Create data for writing to image
     slotdata = []
     for ix, key in enumerate([b for a in bkt.levels for b in a]):
-        xy = slot_coordinates[2017][num_slots - ix]
+        xy = slot_coordinates[year][num_slots - ix]
         try:
             st = '{seed} {team}'.format(
                 seed=seed_slot_map[key.value],
