@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='bracketeer',
     description='Python Library for testing march madness brackets',
-    version='0.1.0',
+    version='0.1.1',
     author='Charlie Haley',
     author_email='charlie.haley@gmail.com',
     url='https://github.com/cshaley/bracketeer',
