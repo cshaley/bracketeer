@@ -27,7 +27,9 @@ b = build_bracket(
         output_path='output.png', 
         teamsPath='data/Teams.csv',
         seedsPath='data/TourneySeeds.csv',
-        submissionPath='data/submit.csv'
+        submissionPath='data/submit.csv',
+        slotsPath='data/TourneySlots.csv',
+        year=2017
 )
 ```
 
