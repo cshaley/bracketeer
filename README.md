@@ -24,7 +24,7 @@ python setup.py install
 ```
 from bracketeer import build_bracket
 b = build_bracket(
-        output_path='output.png', 
+        outputPath='output.png',
         teamsPath='data/Teams.csv',
         seedsPath='data/TourneySeeds.csv',
         submissionPath='data/submit.csv',

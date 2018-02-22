@@ -1,4 +1,5 @@
 import os
+import pkg_resources
 
 from binarytree import Node
 import matplotlib.pyplot as plt
@@ -8,19 +9,23 @@ from PIL import Image, ImageDraw
 
 from .slot_coordinates import slot_coordinates
 
+
+__version__ = '0.1.2'
+
 ID = 'id'
 PRED = 'pred'
 SEASON = 'season'
-TEAM = 'team_name'
+TEAM = 'teamname'
 
 
 class extNode(Node):
     def __init__(self, value, left=None, right=None, parent=None):
         Node.__init__(self, value, left=left, right=right)
         if parent is not None and isinstance(parent, extNode):
-             self.__setattr__('parent', parent)
+            self.__setattr__('parent', parent)
         else:
-             self.__setattr__('parent', None)
+            self.__setattr__('parent', None)
+
     def __setattr__(self, name, value):
         # Magically set the parent to self when a child is created
         if (name in ['left', 'right']
@@ -47,33 +52,33 @@ def build_tree(values):
     return nodes[0] if nodes else None
 
 
-def build_bracket(output_path='output.png', 
-    teamsPath='data/Teams.csv',
-    seedsPath='data/TourneySeeds.csv',
-    slotsPath='data/TourneySlots.csv',
-    submissionPath='data/submit.csv',
-    year=2017):
+def build_bracket(outputPath='output.png',
+                  teamsPath='data/Teams.csv',
+                  seedsPath='data/TourneySeeds.csv',
+                  slotsPath='data/TourneySlots.csv',
+                  submissionPath='data/submit.csv',
+                  year=2017):
 
     assert os.path.isfile(teamsPath), '{} is not a valid file path for teamsPath.'.format(teamsPath)
     assert os.path.isfile(seedsPath), '{} is not a valid file path for seedsPath.'.format(seedsPath)
     assert os.path.isfile(slotsPath), '{} is not a valid file path for slotsPath.'.format(slotsPath)
     assert os.path.isfile(submissionPath), '{} is not a valid file path for submissionPath.'.format(submissionPath)
 
-    def cols_to_lower(df):
-        return df.rename(columns={col: col.lower() for col in df.columns})
+    def clean_col_names(df):
+        return df.rename(columns={col: col.lower().replace('_', '') for col in df.columns})
 
-    teams_df = cols_to_lower(pd.read_csv(teamsPath))
-    seeds_df = cols_to_lower(pd.read_csv(seedsPath))
-    slots_df = cols_to_lower(pd.read_csv(slotsPath))
-    submit = cols_to_lower(pd.read_csv(submissionPath))
+    teams_df = clean_col_names(pd.read_csv(teamsPath))
+    seeds_df = clean_col_names(pd.read_csv(seedsPath))
+    slots_df = clean_col_names(pd.read_csv(slotsPath))
+    submit = clean_col_names(pd.read_csv(submissionPath))
 
-    df = seeds_df.merge(teams_df, left_on='team', right_on='team_id')
-    keepcols = [SEASON, 'seed', 'team_id', TEAM]
+    df = seeds_df.merge(teams_df, left_on='teamid', right_on='teamid')
+    keepcols = [SEASON, 'seed', 'teamid', TEAM]
     df = df.loc[df[SEASON] == year, keepcols].reset_index(drop=True)
 
     # Create bracket tree from slot data
     s = slots_df[slots_df['season'] == year]
-    seed_slot_map = {0:'R6CH'}
+    seed_slot_map = {0: 'R6CH'}
     bkt = extNode(0)
 
     counter = 1
@@ -101,7 +106,7 @@ def build_bracket(output_path='output.png',
     num_slots = len(seed_slot_map.keys())
 
     def get_team_id(seedMap):
-        return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['team_id'].values[0])
+        return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['teamid'].values[0])
 
     # Solve bracket using predictions
     for level in list(reversed(bkt.levels)):
@@ -115,28 +120,26 @@ def build_bracket(output_path='output.png',
             gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1[1], t2=team2[1])
             if submit[submit[ID] == gid][PRED].values[0] >= 0.5:
                 level[ix * 2].parent.value = team1[0]
-            else: 
+            else:
                 level[ix * 2].parent.value = team2[0]
-
 
     # Create data for writing to image
     slotdata = []
     for ix, key in enumerate([b for a in bkt.levels for b in a]):
-        xy = slot_coordinates[year][num_slots - ix]
+        xy = slot_coordinates[2017][num_slots - ix]
         try:
             st = '{seed} {team}'.format(
                 seed=seed_slot_map[key.value],
-                team=df[df['seed']==seed_slot_map[key.value]][TEAM].values[0]
+                team=df[df['seed'] == seed_slot_map[key.value]][TEAM].values[0]
             )
         except IndexError as e:
             st = str(seed_slot_map[key.value])
         slotdata.append((xy, st))
 
-
     # Create bracket image
     # relevant:
     # https://stackoverflow.com/questions/26649716/how-to-show-pil-image-in-ipython-notebook
-    emptyBracketPath = 'empty_brackets/2017.jpg'
+    emptyBracketPath = pkg_resources.resource_filename('bracketeer', '../empty_brackets/2017.jpg')
     img = Image.open(emptyBracketPath)
     draw = ImageDraw.Draw(img)
     # font = ImageFont.truetype(<font-file>, <font-size>)
@@ -157,7 +160,4 @@ def build_bracket(output_path='output.png',
 
     ax.imshow(np.asarray(img))
     # plt.show() # for in notebook
-    img.save(output_path)
-
-if __name__ == '__main__':
-    build_bracket()
+    img.save(outputPath)

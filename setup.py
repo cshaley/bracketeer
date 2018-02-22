@@ -1,14 +1,16 @@
 from setuptools import setup, find_packages
+import bracketeer
 
 setup(
     name='bracketeer',
     description='Python Library for testing march madness brackets',
-    version='0.1.1',
+    version=bracketeer.__version__,
     author='Charlie Haley',
     author_email='charlie.haley@gmail.com',
     url='https://github.com/cshaley/bracketeer',
     download_url='https://github.com/cshaley/bracketeer/archive/0.1.0.tar.gz',
     packages=find_packages(),
+    package_data={'bracketeer': ['../empty_brackets/*.jpg']},
     install_requires=["pandas", "binarytree", "matplotlib", "Pillow"],
     include_package_data=True,
     license='MIT',
