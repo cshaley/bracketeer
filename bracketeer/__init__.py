@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from .slot_coordinates import slot_coordinates
 
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
 ID = 'id'
 PRED = 'pred'
@@ -135,9 +135,9 @@ def build_bracket(outputPath='output.png',
         pred = ''
         if key.parent is not None and key.parent.value in pred_map\
                 and pred_map[key.parent.value][0] == seed_slot_map[key.value]:
-            pred = "{:.2f}".format(pred_map[key.parent.value][2] * 100)
+            pred = "{:.2f}%".format(pred_map[key.parent.value][2] * 100)
         try:
-            st = '{seed} {team} {pred}%'.format(
+            st = '{seed} {team} {pred}'.format(
                 seed=seed_slot_map[key.value],
                 team=df[df['seed'] == seed_slot_map[key.value]][TEAM].values[0],
                 pred=pred
