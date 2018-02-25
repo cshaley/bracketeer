@@ -147,17 +147,17 @@ def build_bracket(outputPath='output.png',
     for slot in slotdata:
         draw.text(slot[0], str(slot[1]), (0, 0, 0))
 
-    dpi = 72
-    margin = 0.05  # (5% of the width/height of the figure...)
-    xpixels, ypixels = 940, 700
+    #dpi = 72
+    #margin = 0.05  # (5% of the width/height of the figure...)
+    #xpixels, ypixels = 940, 700
 
     # Make a figure big enough to accomodate an axis of xpixels by ypixels
     # as well as the ticklabels, etc...
-    figsize = (1 + margin) * ypixels / dpi, (1 + margin) * xpixels / dpi
-    fig = plt.figure(figsize=figsize, dpi=dpi)
+    #figsize = (1 + margin) * ypixels / dpi, (1 + margin) * xpixels / dpi
+    #fig = plt.figure(figsize=figsize, dpi=dpi)
     # Make the axis the right size...
-    ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
+    #ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
 
-    ax.imshow(np.asarray(img))
+    #ax.imshow(np.asarray(img))
     # plt.show() # for in notebook
     img.save(outputPath)
