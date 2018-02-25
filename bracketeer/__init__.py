@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from .slot_coordinates import slot_coordinates
 
 
-__version__ = '0.1.6'
+__version__ = '0.1.7'
 
 ID = 'id'
 PRED = 'pred'
@@ -109,7 +109,7 @@ def build_bracket(outputPath='output.png',
         return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['teamid'].values[0])
 
     # Solve bracket using predictions
-    # Also reate a map with slot, seed, game_id, pred
+    # Also create a map with slot, seed, game_id, pred
     pred_map = {}
     for level in list(reversed(bkt.levels)):
         for ix, node in enumerate(level[0: len(level) // 2]):
@@ -123,19 +123,27 @@ def build_bracket(outputPath='output.png',
             pred = submit[submit[ID] == gid][PRED].values[0]
             if pred >= 0.5:
                 level[ix * 2].parent.value = team1[0]
-                pred_map[level[ix * 2].value] = (seed_slot_map[level[ix * 2].value], gid, pred)
+                pred_map[gid] = (team1[0], seed_slot_map[team1[0]], pred)
             else:
                 level[ix * 2].parent.value = team2[0]
-                pred_map[level[ix * 2 + 1].value] = (seed_slot_map[level[ix * 2].value], gid, 1 - pred)
+                pred_map[gid] = (team2[0], seed_slot_map[team2[0]], 1 - pred)
 
     # Create data for writing to image
     slotdata = []
     for ix, key in enumerate([b for a in bkt.levels for b in a]):
         xy = slot_coordinates[2017][num_slots - ix]
         pred = ''
-        if key.parent is not None and key.parent.value in pred_map\
-                and pred_map[key.parent.value][0] == seed_slot_map[key.value]:
-            pred = "{:.2f}%".format(pred_map[key.parent.value][2] * 100)
+        gid = ''
+        if key.parent is not None:
+            team1 = get_team_id(key.parent.left.value)[1]
+            team2 = get_team_id(key.parent.right.value)[1]
+            if team2 < team1:
+                temp = team1
+                team1 = team2
+                team2 = temp
+            gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1, t2=team2)
+        if gid != '' and pred_map[gid][1] == seed_slot_map[key.value]:
+            pred = "{:.2f}%".format(pred_map[gid][2] * 100)
         try:
             st = '{seed} {team} {pred}'.format(
                 seed=seed_slot_map[key.value],
