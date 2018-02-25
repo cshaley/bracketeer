@@ -108,18 +108,22 @@ def build_bracket(outputPath='output.png',
     def get_team_id(seedMap):
         return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['teamid'].values[0])
 
+    def get_team_ids_and_gid(slot1, slot2):
+        team1 = get_team_id(slot1)
+        team2 = get_team_id(slot2)
+        if team2[1] < team1[1]:
+            temp = team1
+            team1 = team2
+            team2 = temp
+        gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1[1], t2=team2[1])
+        return team1, team2, gid
+
     # Solve bracket using predictions
     # Also create a map with slot, seed, game_id, pred
     pred_map = {}
     for level in list(reversed(bkt.levels)):
         for ix, node in enumerate(level[0: len(level) // 2]):
-            team1 = get_team_id(level[ix * 2].value)
-            team2 = get_team_id(level[ix * 2 + 1].value)
-            if team2[1] < team1[1]:
-                temp = team1
-                team1 = team2
-                team2 = temp
-            gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1[1], t2=team2[1])
+            team1, team2, gid = get_team_ids_and_gid(level[ix * 2].value, level[ix * 2 + 1].value)
             pred = submit[submit[ID] == gid][PRED].values[0]
             if pred >= 0.5:
                 level[ix * 2].parent.value = team1[0]
@@ -135,13 +139,7 @@ def build_bracket(outputPath='output.png',
         pred = ''
         gid = ''
         if key.parent is not None:
-            team1 = get_team_id(key.parent.left.value)[1]
-            team2 = get_team_id(key.parent.right.value)[1]
-            if team2 < team1:
-                temp = team1
-                team1 = team2
-                team2 = temp
-            gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1, t2=team2)
+            team1, team2, gid = get_team_ids_and_gid(key.parent.left.value, key.parent.right.value)
         if gid != '' and pred_map[gid][1] == seed_slot_map[key.value]:
             pred = "{:.2f}%".format(pred_map[gid][2] * 100)
         try:
