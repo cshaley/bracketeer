@@ -2,15 +2,15 @@ import os
 import pkg_resources
 
 from binarytree import Node
-import matplotlib.pyplot as plt
-import numpy as np
+# import matplotlib.pyplot as plt # for notebook usage
+# import numpy as np # for notebook usage
 import pandas as pd
 from PIL import Image, ImageDraw
 
 from .slot_coordinates import slot_coordinates
 
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 
 ID = 'id'
 PRED = 'pred'
@@ -76,7 +76,7 @@ def build_bracket(outputPath='output.png',
     keepcols = [SEASON, 'seed', 'teamid', TEAM]
     df = df.loc[df[SEASON] == year, keepcols].reset_index(drop=True)
 
-    # Create bracket tree from slot data
+    # Create bracket tree from slot data.  Create seed to slot mapping as well.
     s = slots_df[slots_df['season'] == year]
     seed_slot_map = {0: 'R6CH'}
     bkt = extNode(0)
@@ -109,6 +109,8 @@ def build_bracket(outputPath='output.png',
         return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['teamid'].values[0])
 
     # Solve bracket using predictions
+    # Also reate a map with slot, seed, game_id, pred
+    pred_map = {}
     for level in list(reversed(bkt.levels)):
         for ix, node in enumerate(level[0: len(level) // 2]):
             team1 = get_team_id(level[ix * 2].value)
@@ -118,19 +120,27 @@ def build_bracket(outputPath='output.png',
                 team1 = team2
                 team2 = temp
             gid = '{season}_{t1}_{t2}'.format(season=year, t1=team1[1], t2=team2[1])
-            if submit[submit[ID] == gid][PRED].values[0] >= 0.5:
+            pred = submit[submit[ID] == gid][PRED].values[0]
+            if pred >= 0.5:
                 level[ix * 2].parent.value = team1[0]
+                pred_map[level[ix * 2].value] = (seed_slot_map[level[ix * 2].value], gid, pred)
             else:
                 level[ix * 2].parent.value = team2[0]
+                pred_map[level[ix * 2 + 1].value] = (seed_slot_map[level[ix * 2].value], gid, 1 - pred)
 
     # Create data for writing to image
     slotdata = []
     for ix, key in enumerate([b for a in bkt.levels for b in a]):
         xy = slot_coordinates[2017][num_slots - ix]
+        pred = ''
+        if key.parent is not None and key.parent.value in pred_map\
+                and pred_map[key.parent.value][0] == seed_slot_map[key.value]:
+            pred = "{:.2f}".format(pred_map[key.parent.value][2] * 100)
         try:
-            st = '{seed} {team}'.format(
+            st = '{seed} {team} {pred}%'.format(
                 seed=seed_slot_map[key.value],
-                team=df[df['seed'] == seed_slot_map[key.value]][TEAM].values[0]
+                team=df[df['seed'] == seed_slot_map[key.value]][TEAM].values[0],
+                pred=pred
             )
         except IndexError as e:
             st = str(seed_slot_map[key.value])
@@ -147,17 +157,17 @@ def build_bracket(outputPath='output.png',
     for slot in slotdata:
         draw.text(slot[0], str(slot[1]), (0, 0, 0))
 
-    #dpi = 72
-    #margin = 0.05  # (5% of the width/height of the figure...)
-    #xpixels, ypixels = 940, 700
+    # dpi = 72
+    # margin = 0.05  # (5% of the width/height of the figure...)
+    # xpixels, ypixels = 940, 700
 
     # Make a figure big enough to accomodate an axis of xpixels by ypixels
     # as well as the ticklabels, etc...
-    #figsize = (1 + margin) * ypixels / dpi, (1 + margin) * xpixels / dpi
-    #fig = plt.figure(figsize=figsize, dpi=dpi)
+    # figsize = (1 + margin) * ypixels / dpi, (1 + margin) * xpixels / dpi
+    # fig = plt.figure(figsize=figsize, dpi=dpi)
     # Make the axis the right size...
-    #ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
+    # ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
 
-    #ax.imshow(np.asarray(img))
+    # ax.imshow(np.asarray(img))
     # plt.show() # for in notebook
     img.save(outputPath)
