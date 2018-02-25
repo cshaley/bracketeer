@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from .slot_coordinates import slot_coordinates
 
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 ID = 'id'
 PRED = 'pred'
@@ -139,7 +139,7 @@ def build_bracket(outputPath='output.png',
     # Create bracket image
     # relevant:
     # https://stackoverflow.com/questions/26649716/how-to-show-pil-image-in-ipython-notebook
-    emptyBracketPath = pkg_resources.resource_filename('bracketeer', '../empty_brackets/2017.jpg')
+    emptyBracketPath = pkg_resources.resource_filename('bracketeer', 'empty_brackets/2017.jpg')
     img = Image.open(emptyBracketPath)
     draw = ImageDraw.Draw(img)
     # font = ImageFont.truetype(<font-file>, <font-size>)
