@@ -10,7 +10,7 @@ setup(
     url='https://github.com/cshaley/bracketeer',
     download_url='https://github.com/cshaley/bracketeer/archive/0.1.0.tar.gz',
     packages=find_packages(),
-    package_data={'bracketeer': ['bracketeer/empty_brackets/*.jpg']},
+    package_data={'bracketeer': ['bracketeer/empty_brackets/*.jpg', 'bracketeer/tests/input/*.csv']},
     install_requires=["pandas", "binarytree", "matplotlib", "Pillow"],
     include_package_data=True,
     license='MIT',

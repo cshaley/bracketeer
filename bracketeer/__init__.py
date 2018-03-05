@@ -45,7 +45,8 @@ def build_bracket(outputPath='output.png',
     assert os.path.isfile(teamsPath), '{} is not a valid file path for teamsPath.'.format(teamsPath)
     assert os.path.isfile(seedsPath), '{} is not a valid file path for seedsPath.'.format(seedsPath)
     assert os.path.isfile(slotsPath), '{} is not a valid file path for slotsPath.'.format(slotsPath)
-    assert os.path.isfile(submissionPath), '{} is not a valid file path for submissionPath.'.format(submissionPath)
+    assert os.path.isfile(submissionPath), (
+        '{} is not a valid file path for submissionPath.'.format(submissionPath))
 
     def clean_col_names(df):
         return df.rename(columns={col: col.lower().replace('_', '') for col in df.columns})

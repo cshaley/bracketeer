@@ -1,0 +1,16 @@
+language: python
+python: 
+  - 3.6
+install:
+    - pip install binarytree pandas matplotlib Pillow
+    - pip install coverage
+    - pip install pytest
+    - pip install pytest-cov
+#    - pip install python-coveralls
+    - pip install flake8
+    - python setup.py install
+script:
+    - python -m flake8 bracketeer/__init__.py
+    - py.test bracketeer/tests/tests.py --cov=bracketeer
+#after_success:
+#    - coveralls
