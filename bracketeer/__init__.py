@@ -35,23 +35,6 @@ class extNode(Node):
         object.__setattr__(self, name, value)
 
 
-def build_tree(values):
-    nodes = [None if v is None else extNode(v) for v in values]
-
-    for index in range(1, len(nodes)):
-        node = nodes[index]
-        if node is not None:
-            parent_index = (index - 1) // 2
-            parent = nodes[parent_index]
-            if parent is None:
-                raise NodeNotFoundError(
-                    'Parent node missing at index {}'
-                    .format(parent_index)
-                )
-            setattr(parent, 'left' if index % 2 else 'right', node)
-    return nodes[0] if nodes else None
-
-
 def build_bracket(outputPath='output.png',
                   teamsPath='data/Teams.csv',
                   seedsPath='data/TourneySeeds.csv',
@@ -142,14 +125,11 @@ def build_bracket(outputPath='output.png',
             team1, team2, gid = get_team_ids_and_gid(key.parent.left.value, key.parent.right.value)
         if gid != '' and pred_map[gid][1] == seed_slot_map[key.value]:
             pred = "{:.2f}%".format(pred_map[gid][2] * 100)
-        try:
-            st = '{seed} {team} {pred}'.format(
-                seed=seed_slot_map[key.value],
-                team=df[df['seed'] == seed_slot_map[key.value]][TEAM].values[0],
-                pred=pred
-            )
-        except IndexError as e:
-            st = str(seed_slot_map[key.value])
+        st = '{seed} {team} {pred}'.format(
+            seed=seed_slot_map[key.value],
+            team=df[df['seed'] == seed_slot_map[key.value]][TEAM].values[0],
+            pred=pred
+        )
         slotdata.append((xy, st))
 
     # Create bracket image
