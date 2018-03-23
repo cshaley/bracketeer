@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from .slot_coordinates import slot_coordinates
 
 
-__version__ = '0.1.8'
+__version__ = '0.1.9'
 
 ID = 'id'
 PRED = 'pred'
