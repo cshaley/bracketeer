@@ -10,7 +10,7 @@ install:
     - pip install flake8
     - python setup.py install
 script:
-    - python -m flake8 bracketeer/__init__.py
+    - flake8 bracketeer/__init__.py --max-line-length 120
     - py.test bracketeer/tests/tests.py --cov=bracketeer
 #after_success:
 #    - coveralls
