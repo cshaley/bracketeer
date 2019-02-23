@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from .slot_coordinates import slot_coordinates
 
 
-__version__ = '0.1.9'
+__version__ = '0.2.0'
 
 ID = 'id'
 PRED = 'pred'
@@ -54,6 +54,9 @@ def build_bracket(outputPath='output.png',
     teams_df = clean_col_names(pd.read_csv(teamsPath))
     seeds_df = clean_col_names(pd.read_csv(seedsPath))
     slots_df = clean_col_names(pd.read_csv(slotsPath))
+    if "season" not in slots_df.columns:
+        slots_df['season'] = year
+        slots_df = slots_df[['season','slot','strongseed', 'weakseed']]
     submit = clean_col_names(pd.read_csv(submissionPath))
 
     df = seeds_df.merge(teams_df, left_on='teamid', right_on='teamid')
@@ -87,8 +90,6 @@ def build_bracket(outputPath='output.png',
             current_id += 1
         current_nodes = next_nodes
 
-    num_slots = len(seed_slot_map.keys())
-
     def get_team_id(seedMap):
         return (seedMap, df[df['seed'] == seed_slot_map[seedMap]]['teamid'].values[0])
 
@@ -119,7 +120,7 @@ def build_bracket(outputPath='output.png',
     # Create data for writing to image
     slotdata = []
     for ix, key in enumerate([b for a in bkt.levels for b in a]):
-        xy = slot_coordinates[2017][num_slots - ix]
+        xy = slot_coordinates[2017][max(slot_coordinates[2017].keys()) - ix]
         pred = ''
         gid = ''
         if key.parent is not None:
