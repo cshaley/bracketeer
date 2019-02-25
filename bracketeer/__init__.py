@@ -56,7 +56,7 @@ def build_bracket(outputPath='output.png',
     slots_df = clean_col_names(pd.read_csv(slotsPath))
     if "season" not in slots_df.columns:
         slots_df['season'] = year
-        slots_df = slots_df[['season','slot','strongseed', 'weakseed']]
+        slots_df = slots_df[['season', 'slot', 'strongseed', 'weakseed']]
     submit = clean_col_names(pd.read_csv(submissionPath))
 
     df = seeds_df.merge(teams_df, left_on='teamid', right_on='teamid')
