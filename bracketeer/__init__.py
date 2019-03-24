@@ -58,9 +58,10 @@ def build_bracket(outputPath='output.png',
     if resultsPath is not None:
         results_df = pd.read_csv(resultsPath)
         results_df.columns = ["ID", "Pred"]
-        results_df = clean_col_names(results_df)
     else:
         results_df = pd.DataFrame({"ID": [], "Pred": []})
+
+    results_df = clean_col_names(results_df)
 
     if "season" not in slots_df.columns:
         slots_df['season'] = year
@@ -135,7 +136,7 @@ def build_bracket(outputPath='output.png',
                     pred_label = pred
                 else:
                     raise ValueError("wat")
-                
+
             elif pred >= 0.5:
                 team = team1
                 pred_label = pred
