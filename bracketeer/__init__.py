@@ -40,6 +40,7 @@ def build_bracket(outputPath='output.png',
                   seedsPath='data/TourneySeeds.csv',
                   slotsPath='data/TourneySlots.csv',
                   submissionPath='data/submit.csv',
+                  resultsPath=None,
                   year=2017):
 
     assert os.path.isfile(teamsPath), '{} is not a valid file path for teamsPath.'.format(teamsPath)
@@ -54,6 +55,13 @@ def build_bracket(outputPath='output.png',
     teams_df = clean_col_names(pd.read_csv(teamsPath))
     seeds_df = clean_col_names(pd.read_csv(seedsPath))
     slots_df = clean_col_names(pd.read_csv(slotsPath))
+    if resultsPath is not None:
+        results_df = pd.read_csv(resultsPath)
+        results_df.columns = ["ID", "Pred"]
+        results_df = clean_col_names(results_df)
+    else:
+        results_df = pd.DataFrame({"ID": [], "Pred": []})
+
     if "season" not in slots_df.columns:
         slots_df['season'] = year
         slots_df = slots_df[['season', 'slot', 'strongseed', 'weakseed']]
@@ -110,12 +118,33 @@ def build_bracket(outputPath='output.png',
         for ix, node in enumerate(level[0: len(level) // 2]):
             team1, team2, gid = get_team_ids_and_gid(level[ix * 2].value, level[ix * 2 + 1].value)
             pred = submit[submit[ID] == gid][PRED].values[0]
-            if pred >= 0.5:
-                level[ix * 2].parent.value = team1[0]
-                pred_map[gid] = (team1[0], seed_slot_map[team1[0]], pred)
+            if gid in list(results_df.id):
+                game_outcome = results_df[results_df[ID] == gid][PRED].values[0]
+                team = team1 if game_outcome == 1 else team2
+                if (game_outcome == 1 and pred > 0.5):
+                    # outcome agress with prediction, team1 wins
+                    pred_label = pred
+                elif (game_outcome == 0 and pred > 0.5):
+                    # outcome different than prediction, team2 wins
+                    pred_label = 1 - pred
+                elif (game_outcome == 0 and pred <= 0.5):
+                    # outcome agrees with prediction, team2 wins
+                    pred_label = 1 - pred
+                elif (game_outcome == 1 and pred <= 0.5):
+                    # outcome different than prediction, team2 wins
+                    pred_label = pred
+                else:
+                    raise ValueError("wat")
+                
+            elif pred >= 0.5:
+                team = team1
+                pred_label = pred
             else:
-                level[ix * 2].parent.value = team2[0]
-                pred_map[gid] = (team2[0], seed_slot_map[team2[0]], 1 - pred)
+                team = team2
+                pred_label = 1 - pred
+
+            level[ix * 2].parent.value = team[0]
+            pred_map[gid] = (team[0], seed_slot_map[team[0]], pred_label)
 
     # Create data for writing to image
     slotdata = []
