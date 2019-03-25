@@ -27,11 +27,34 @@ python setup.py install
 from bracketeer import build_bracket
 b = build_bracket(
         outputPath='output.png',
-        teamsPath='data/Teams.csv',
-        seedsPath='data/TourneySeeds.csv',
-        submissionPath='data/submit.csv',
-        slotsPath='data/TourneySlots.csv',
-        year=2017
+        teamsPath='sample/Teams.csv',
+        seedsPath='sample/NCAATourneySeeds.csv',
+        submissionPath='sample/submit_example.csv',
+        slotsPath='sample/NCAATourneySlots.csv',
+        resultsPath=None,
+        year=2019
+)
+```
+
+`resultsPath` is an optional `CSV` file containing 
+results of games already played. If it is provided then the
+in the cases that the team the user predicted to win 
+loses, it will substitute the actual winning team. This is
+intended to visualize the predictions for later rounds, after the
+match-ups are set.
+
+Example, 
+
+```
+from bracketeer import build_bracket
+b = build_bracket(
+        outputPath='output_current.png',
+        teamsPath='sample/Teams.csv',
+        seedsPath='sample/NCAATourneySeeds.csv',
+        submissionPath='sample/submit_example.csv',
+        slotsPath='sample/NCAATourneySlots.csv',
+        resultsPath='sample/current_results_example.csv',
+        year=2019
 )
 ```
 
@@ -49,7 +72,10 @@ Additional input data/files not provided on kaggle:
 
 Output is a bracket filled in with team seeds, names, and winning likelihood for each game.  
 The empty bracket is shown below.
-![alt tag](https://raw.githubusercontent.com/cshaley/bracketeer/master/bracketeer/empty_brackets/2017.jpg)
+![alt tag](/empty_brackets/2017.jpg)
 
 The predicted bracket (this program's output) is shown below:
-![alt tag](https://raw.githubusercontent.com/cshaley/bracketeer/master/sample/predicted_bracket.jpg)
+![alt tag](/sample/output.png)
+
+The predicted bracket, applying known results for the first round:
+![alt tag](/sample/output_current.png)
