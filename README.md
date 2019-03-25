@@ -37,8 +37,8 @@ b = build_bracket(
 ```
 
 `resultsPath` is an optional `CSV` file containing 
-results of games already played. If it is provided then the
-in the cases that the team the user predicted to win 
+results of games already played. If it is provided then in 
+the cases that the team the user predicted to win 
 loses, it will substitute the actual winning team. This is
 intended to visualize the predictions for later rounds, after the
 match-ups are set.
@@ -72,10 +72,11 @@ Additional input data/files not provided on kaggle:
 
 Output is a bracket filled in with team seeds, names, and winning likelihood for each game.  
 The empty bracket is shown below.
-![alt tag](/empty_brackets/2017.jpg)
+![alt tag](/bracketeer/empty_brackets/2017.jpg)
 
-The predicted bracket (this program's output) is shown below:
+The predicted bracket (this program's output) is shown below, for a set of randomly generated 
+predictions:
 ![alt tag](/sample/output.png)
 
-The predicted bracket, applying known results for the first round:
+The predicted bracket, after applying known results for the first round (based on the first round of the 2019 tournament):
 ![alt tag](/sample/output_current.png)
